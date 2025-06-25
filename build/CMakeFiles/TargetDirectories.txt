@@ -1,3 +1,0 @@
-/home/hector/Dokument/HippoShell/build/CMakeFiles/hippo-shell.dir
-/home/hector/Dokument/HippoShell/build/CMakeFiles/edit_cache.dir
-/home/hector/Dokument/HippoShell/build/CMakeFiles/rebuild_cache.dir
