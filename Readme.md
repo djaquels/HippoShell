@@ -11,7 +11,7 @@ Clone repository and run the
 <code>
 package.sh
 </code>
-then execute with <code>./build/hippo_shell</code> optionally can be added to user/systems path.
+then execute with <code>./build/hippo-shell</code> optionally can be added to user/systems path. Then can be run as <code>hippo-shell</code>
 
 
 ### Description
