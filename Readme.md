@@ -4,7 +4,17 @@ linux assistant that can automatically execute shell commands offering a
 shell-less experience where developers, system administrators and users can
 accelerate their bash, system tasks.
 
-### Example Case
+
+### Installation
+
+Clone repository and run the
+<code>
+package.sh
+</code>
+then execute with <code>./build/hippo_shell</code> optionally can be added to user/systems path.
+
+
+### Description
 
 The agent can automatically (either with or without user supervision) execute shell commands like the following
 
@@ -20,3 +30,17 @@ docker pull nginx &&
 docker run -t server -p 8086:8080 nginx
 </code>
 
+# Specs
+
+- It uses ollama:llama3.2 no network access required
+- User confirms (edits) commands before execution
+- User can enrich context (pending)
+- Automatic system tunning after installation (pending)
+- Build a TUI with ncurses or fzf-style interface (pending)
+
+### Showcase
+![alt text](diskusage.png "Title")
+---
+![alt text](gcc.png "Title")
+---
+![alt text](nvm.png "Title")
