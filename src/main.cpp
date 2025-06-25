@@ -24,6 +24,9 @@ int main() {
         std::getline(std::cin, input);
         transform(input.begin(), input.end(), input.begin(), ::tolower);
         input = trim(input);
+        if(!input.compare("exit")){
+            break;
+        }
         auto response = sendToOllama(input);
         std::string cmd = parseCommand(response);
         if (askUserToConfirm(cmd)) {
