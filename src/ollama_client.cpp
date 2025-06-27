@@ -5,8 +5,6 @@
 #include <sstream>
 #include <iostream>
 
-
-
 std::string extractResponseField(const std::string& jsonString) {
     try {
         auto json = nlohmann::json::parse(jsonString);
@@ -22,11 +20,15 @@ std::string extractResponseField(const std::string& jsonString) {
 std::string sendToOllama(const std::string& prompt) {
     CURL* curl = curl_easy_init();
     std::string response;
-    std::string enrichedPrompt = 
-        "Please respond only with the executable command string and all operators that can be run on shell from the following: " 
-        + prompt + "( and please remove \\n\\r new line and ```bash headers)";
-    if (curl) {
-        std::string postData = R"({"model": "llama3.2", "stream": false, "prompt":")" + enrichedPrompt + R"("})";
+    std::string enrichedPrompt = "User Task: " + prompt + " please respond only with a safe, complete shell command to accomplish the user task ( and please remove \\n\\r new line and ```bash headers)";
+        if (curl) {
+        nlohmann::json payload;
+        payload["model"] = "hippo-shell";
+        payload["stream"] = false;
+        payload["prompt"] = enrichedPrompt;
+        //std::string postData = R"({"model": "llama3.2", "stream": false, "prompt":")" + enrichedPrompt + R"("})";
+        std::string postData = payload.dump();
+        std::cout << postData << "running!\n";
         struct curl_slist* headers = nullptr;
         curl_easy_setopt(curl, CURLOPT_URL, "http://localhost:11434/api/generate");
         curl_easy_setopt(curl, CURLOPT_POSTFIELDS, postData.c_str());        
@@ -39,5 +41,6 @@ std::string sendToOllama(const std::string& prompt) {
         curl_easy_perform(curl);
         curl_easy_cleanup(curl);
     }
+    std::cout << "Response: " << response << "\n";
     return extractResponseField(response);
 }

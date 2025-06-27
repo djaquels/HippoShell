@@ -4,6 +4,11 @@
 #include <regex>
 #include <cctype>
 #include <bits/stdc++.h>
+#include <unistd.h>
+#include <sys/wait.h>
+#include <vector>
+#include <cstring>
+#include <fcntl.h>
 
 std::string cleanCommand(const std::string& raw) {
     std::string cleaned = raw;
@@ -45,16 +50,67 @@ bool askUserToConfirm(const std::string& cmd) {
     return false;
 }
 
+
 std::string runCommand(const std::string& cmd) {
-    std::string result;
-    char buffer[128];
-    FILE* pipe = popen(cmd.c_str(), "r");
-    if (!pipe) return "Error: Failed to run command.";
-    while (fgets(buffer, sizeof buffer, pipe) != nullptr) {
-        result += buffer;
+    int out_pipe[2], err_pipe[2];
+    pipe(out_pipe);
+    pipe(err_pipe);
+
+    pid_t pid = fork();
+    if (pid == 0) {
+        // Child process
+        close(out_pipe[0]); // Close read end of stdout pipe
+        close(err_pipe[0]); // Close read end of stderr pipe
+
+        dup2(out_pipe[1], STDOUT_FILENO); // Redirect stdout
+        dup2(err_pipe[1], STDERR_FILENO); // Redirect stderr
+
+        close(out_pipe[1]);
+        close(err_pipe[1]);
+
+        // Execute the command using /bin/sh -c
+        execl("/bin/sh", "sh", "-c", cmd.c_str(), (char*)nullptr);
+        // If execl fails
+        perror("execl");
+        exit(1);
+    } else {
+        // Parent process
+        close(out_pipe[1]); // Close write end
+        close(err_pipe[1]);
+
+        // Set both pipes to non-blocking
+        fcntl(out_pipe[0], F_SETFL, O_NONBLOCK);
+        fcntl(err_pipe[0], F_SETFL, O_NONBLOCK);
+
+        char buffer[256];
+        bool out_open = true, err_open = true;
+        bool std_error_flag = false;
+        while (out_open || err_open) {
+            ssize_t n = read(out_pipe[0], buffer, sizeof(buffer) - 1);
+            if (n > 0) {
+                buffer[n] = '\0';
+                std::cout << "[stdout] " << buffer << std::flush;
+            } else if (n == 0) {
+                out_open = false;
+            }
+
+            n = read(err_pipe[0], buffer, sizeof(buffer) - 1);
+            if (n > 0) {
+                std_error_flag = true;
+                buffer[n] = '\0';
+                std::cerr << "[stderr] " << buffer << std::flush;
+            } else if (n == 0) {
+                err_open = false;
+            }
+
+            // Avoid busy-waiting
+            usleep(10000); // Sleep 10ms
+        }
+        close(out_pipe[0]);
+        close(err_pipe[0]);
+        waitpid(pid, nullptr, 0); // Wait for child to exit
+        return std_error_flag ? "something failed while running command" : "success!";
     }
-    pclose(pipe);
-    return result;
 }
 
 std::string parseCommand(const std::string& llmOutput) {

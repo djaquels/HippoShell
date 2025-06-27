@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.14)
 project(hippo-shell)
 
 # Use C++17
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 
 # Add vcpkg integration if available
 if(DEFINED ENV{VCPKG_ROOT})
@@ -18,6 +18,7 @@ add_executable(hippo-shell
     src/main.cpp
     src/ollama_client.cpp
     src/command_runner.cpp
+    src/context.cpp 
 )
 
 # Link libraries installed with vcpkg
