@@ -9,6 +9,36 @@
 #include <vector>
 #include <cstring>
 #include <fcntl.h>
+// smart editing
+#include <readline/readline.h>
+#include <readline/history.h>
+
+
+static const char* g_input_seed = nullptr;
+
+int input_seed_hook(){
+    if(g_input_seed){
+      rl_insert_text(g_input_seed);
+      rl_startup_hook = nullptr; // Clear the hook after using it
+				 // This prevents the hook from being called again
+      g_input_seed = nullptr; // Clear the seed after using it
+    }
+    return 0;
+  
+}
+
+
+std::string editedCommand(const char* suggestedCommand){
+   g_input_seed = suggestedCommand;
+   rl_startup_hook = input_seed_hook; // Set the hook to insert the seed
+
+   char* input = readline("Edit command: ");
+   std::string editedCmd = (input ? std::string(input) : "");
+   if(input) {
+       free(input);
+   }
+   return editedCmd;
+}
 
 std::string cleanCommand(const std::string& raw) {
     std::string cleaned = raw;
@@ -36,18 +66,18 @@ std::string cleanCommand(const std::string& raw) {
     return cleaned;
 }
 
-bool askUserToConfirm(const std::string& cmd) {
+std::string askUserToConfirm(const std::string& cmd) {
     std::string choice;
     std::string cmd_custom;
     std::cout << "Suggested command: " << cmd << "\nRun it? (y/n/edit): ";
     std::getline(std::cin, choice);
-    if (choice == "y") return true;
-    else if (choice == "edit") {
+    if (choice == "y") return cmd;
+    else if (!choice.compare("edit")) {
         std::cout << "Edit command: ";
-        std::getline(std::cin, cmd_custom);
-        return true;
+        std::string editedCmd = editedCommand(cmd.c_str());
+	return editedCmd;;
     }
-    return false;
+    return "";
 }
 
 

@@ -61,8 +61,9 @@ int main() {
         }
         auto response = sendToOllama(input);
         std::string cmd = parseCommand(response);
-        if (askUserToConfirm(cmd)) {
-            auto result = runCommand(cmd);
+	std::string finalCommand = askUserToConfirm(cmd);
+        if (!finalCommand.empty()) {
+            auto result = runCommand(finalCommand);
             std::cout << "Result:\n" << result << "\n";
         } else {
         std::cout << "Aborted.\n";
