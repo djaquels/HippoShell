@@ -12,6 +12,7 @@
 #include <csignal>
 #include <array>
 #include <cstdio>
+#include <thread>
 
 std::atomic<bool> loadingDone(false); 
 
@@ -35,32 +36,24 @@ void showLoadingBar() {
 }
 
 std::string runShellCommandWithSpinner(const std::string& cmd) {
-    pid_t spinnerPid = fork();
+    loadingDone.store(false);
+    std::thread spinnerThread(showLoadingBar);
 
-    if (spinnerPid == 0) {
-        // Child: loading animation
-        showLoadingBar();
-        exit(0);
-    }
-
-    // Parent: run blocking command
     std::array<char, 256> buffer;
     std::string result;
     FILE* pipe = popen(cmd.c_str(), "r");
-
-    if (!pipe) return "Error running command";
-
-    while (fgets(buffer.data(), buffer.size(), pipe) != nullptr) {
-        result += buffer.data();
+    if (!pipe) {
+	loadingDone.store(true);
+	spinnerThread.join();
+	return "Error running command";
     }
-
-    pclose(pipe);
-    loadingDone.store(true); // Tell spinner to stop
-
-    // Wait for child process to finish
-    waitpid(spinnerPid, nullptr, 0);
-
-    return result;
+    while (fgets(buffer.data(), buffer.size(), pipe) != nullptr) {
+	result += buffer.data();
+    }
+    int status = pclose(pipe);
+    loadingDone.store(true);
+    spinnerThread.join();
+    return (status == 0) ? result : "Error running command";
 }
 
 std::string runShellCommand(const std::string& cmd) {
