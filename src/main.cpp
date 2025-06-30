@@ -9,6 +9,22 @@
 #include "ollama_client.h"
 #include "command_runner.h"
 #include "context.h"
+//--------- Enriched line input experience with GNU Readline
+#include <readline/readline.h>
+#include <readline/history.h>
+
+
+std::string  getInput(const char* prompt){
+ char* line = readline(prompt);
+ if (line && *line) {
+	add_history(line);
+	std::string input(line);
+	free(line);
+	return input;
+    }
+    free(line);
+    return "";
+}
 
 inline std::string trim(const std::string &s)
 {
@@ -23,7 +39,7 @@ int main() {
     if(!contextExists()){
         std::cout << "Fine tunning agent, please wait a moment. This can take some minutes\n";
         generateContextFile("/home");
-        std::cout << readContextFile() << "\n";
+        readContextFile();
         std::cout << "context generated for /home if you want to fetch full system context please run [update context] and select root [/]\n";
     }
     bool ai_running = initAgent();

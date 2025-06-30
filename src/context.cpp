@@ -77,10 +77,10 @@ std::string runShellCommand(const std::string& cmd) {
 
 std::string getSystemContext(const std::string root) {
     std::string context;
-
-    context += "Kernel:\n";
+    context += "Config file: " + CONTEXT_FILE + "\n";
+    context += "Kernel: ";
     context += runShellCommand("uname -a");
-    context += "\nOS Version:\n";
+    context += "\nOS Version: ";
     context += runShellCommand("lsb_release -ds 2> /dev/null || cat /etc/*release 2> /dev/null | head -n1");
     /*context += "\n\n### Directory structure ("+root+")"+":\n";
     context += runShellCommand("tree "+ root + " -L 10");

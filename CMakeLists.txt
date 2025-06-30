@@ -9,10 +9,9 @@ if(DEFINED ENV{VCPKG_ROOT})
   set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
     CACHE STRING "")
 endif()
-
 #include local libs directories
+# Set the include directories for the project
 include_directories(${CMAKE_SOURCE_DIR}/include)
-
 # Include sources
 add_executable(hippo-shell
     src/main.cpp
@@ -24,9 +23,12 @@ add_executable(hippo-shell
 # Link libraries installed with vcpkg
 find_package(nlohmann_json CONFIG REQUIRED)
 find_package(CURL REQUIRED)
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(readline REQUIRED IMPORTED_TARGET readline)
 
 target_link_libraries(hippo-shell
     PRIVATE
     nlohmann_json::nlohmann_json
     CURL::libcurl
+    PkgConfig::readline
 )
