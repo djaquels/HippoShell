@@ -45,8 +45,8 @@ int main() {
     bool ai_running = initAgent();
     while(input.compare("exit")){
         std::cout << "Ask me something (e.g. 'Create docker image named api'); or type exit to close the agent:\n";
-        std::getline(std::cin, input);
-        transform(input.begin(), input.end(), input.begin(), ::tolower);
+        input = getInput("hippo-shell> ");
+	transform(input.begin(), input.end(), input.begin(), ::tolower);
         input = trim(input);
         if(!input.compare("exit")){
             break;
@@ -54,8 +54,8 @@ int main() {
         if(!input.compare("update context")){
             std::string contextFolder("/");
             std::cout << "Please select the folder to use for context default: [/] (this operation will override current context)\n";
-            std::getline(std::cin, contextFolder);
-            generateContextFile(contextFolder);
+            contextFolder = getInput("hippo-shell> ");
+	    generateContextFile(contextFolder);
             std::cout << readContextFile() << "\n";
             continue;
         }
