@@ -19,7 +19,7 @@ void showLoadingScreenAnimation() {
     size_t index = 0;
     while (isOllamaRunning) {
 	std::cout << "\rLoading Hippo Inteligence " << loadingChars[index++ % loadingChars.size()] << std::flush;
-	std::this_thread::sleep_for(std::chrono::milliseconds(10000));
+	std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }
     //clean line after loading is done
     std::cout << "\n" << std::flush;
