@@ -78,10 +78,11 @@ std::string runShellCommand(const std::string& cmd) {
 std::string getSystemContext(const std::string root) {
     std::string context;
 
-    context += "### System Info:\n";
+    context += "Kernel:\n";
     context += runShellCommand("uname -a");
-
-    context += "\n\n### Directory structure ("+root+")"+":\n";
+    context += "\nOS Version:\n";
+    context += runShellCommand("lsb_release -ds 2> /dev/null || cat /etc/*release 2> /dev/null | head -n1");
+    /*context += "\n\n### Directory structure ("+root+")"+":\n";
     context += runShellCommand("tree "+ root + " -L 10");
 
     context += "\n\n### Available Binaries:\n";
@@ -108,7 +109,7 @@ std::string getSystemContext(const std::string root) {
 
     context += "\n### Battery Info:\n";
     context += runShellCommand("upower -i $(upower -e | grep BAT) 2>/dev/null | grep -E 'state|time|percentage'");
-
+    */
     return context;
 }
 
@@ -120,7 +121,7 @@ void generateContextFile(const std::string root) {
     std::ofstream out(CONTEXT_FILE);
     if (out.is_open()) {
         out << "FROM llama3.2\n";
-        out << "PARAMETER temperature 0.2\n";
+        out << "PARAMETER temperature 1\n";
         out << "SYSTEM \"\"\" ";
         out << "You are a shell assistant. Based on the current system info below, please respond only with a safe, complete shell command to accomplish the user task.\n";
         out << getSystemContext(root);
