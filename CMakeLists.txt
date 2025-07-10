@@ -13,16 +13,21 @@ endif()
 # Set the include directories for the project
 include_directories(
 	${CMAKE_SOURCE_DIR}/include
+    ${CMAKE_SOURCE_DIR}/include/rag
 	${CURSES_INCLUDE_DIRS}
+    ${CMAKE_SOURCE_DIR}/src
+    ${CMAKE_SOURCE_DIR}/src/rag
 	)
 # Ncurses configuration
 set(CURSES_NEED_NCURSES TRUE)
 # Include sources
+file(GLOB RAG_SRC "src/rag/*.cpp")
 add_executable(hippo-shell
     src/main.cpp
     src/ollama_client.cpp
     src/command_runner.cpp
     src/context.cpp 
+    ${RAG_SRC}
 )
 
 # Link libraries installed with vcpkg

@@ -12,6 +12,8 @@
 //--------- Enriched line input experience with GNU Readline
 #include <readline/readline.h>
 #include <readline/history.h>
+//--------- RAG libraries
+#include "rag/context_collector.h"
 
 
 std::string  getInput(const char* prompt){
