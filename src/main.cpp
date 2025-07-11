@@ -16,6 +16,9 @@
 #include "rag/context_collector.h"
 
 
+const std::string CONTEXT_FILE = "/tmp/jeanne_context.txt";
+const std::string RAG_CONTEXT_FILE = "/tmp/jeanne_context_rag.txt";
+
 std::string  getInput(const char* prompt){
  char* line = readline(prompt);
  if (line && *line) {
@@ -38,7 +41,7 @@ inline std::string trim(const std::string &s)
 int main() {
     std::string input("start");
     std::cout << "Welcome to hippo-shell!\n";
-    if(!contextExists()){
+    if(!contextExists(CONTEXT_FILE)){
         std::cout << "Fine tunning agent, please wait a moment. This can take some minutes\n";
         generateContextFile("/home");
         readContextFile();
@@ -53,12 +56,15 @@ int main() {
         if(!input.compare("exit")){
             break;
         }
+        if(!input.compare("clean")){
+          
+        }
         if(!input.compare("update context")){
             std::string contextFolder("/");
             std::cout << "Please select the folder to use for context default: [/] (this operation will override current context)\n";
             contextFolder = getInput("hippo-shell> ");
-	    generateContextFile(contextFolder);
-            std::cout << readContextFile() << "\n";
+	        collectContext("/tmp/jeanne_context_rag.txt",contextFolder);
+            std::cout << "new context loaded!\n";
             continue;
         }
         auto response = sendToOllama(input);

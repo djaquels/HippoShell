@@ -17,6 +17,7 @@
 std::atomic<bool> loadingDone(false); 
 
 const std::string CONTEXT_FILE = "/tmp/jeanne_context.txt";
+const std::string RAG_CONTEXT_FILE = "/tmp/jeanne_context_rag.txt";
 
 
 void showLoadingBar() {
@@ -70,8 +71,9 @@ std::string runShellCommand(const std::string& cmd) {
 
 std::string getSystemContext(const std::string root) {
     std::string context;
-    context += "Config file: " + CONTEXT_FILE + "\n";
+    context += "Model config file: " + CONTEXT_FILE + "\n";
     context += "Kernel: ";
+    context += "RAG complementary config file: " + RAG_CONTEXT_FILE + "\n";
     context += runShellCommand("uname -a");
     context += "\nOS Version: ";
     context += runShellCommand("lsb_release -ds 2> /dev/null || cat /etc/*release 2> /dev/null | head -n1");
@@ -106,8 +108,8 @@ std::string getSystemContext(const std::string root) {
     return context;
 }
 
-bool contextExists() {
-    return std::filesystem::exists(CONTEXT_FILE);
+bool contextExists(const std::string configfile) {
+    return std::filesystem::exists(configfile);
 }
 
 void generateContextFile(const std::string root) {
@@ -124,7 +126,7 @@ void generateContextFile(const std::string root) {
 }
 
 std::string readContextFile() {
-    if(contextExists()){
+    if(contextExists(CONTEXT_FILE)){
         std::string result = runShellCommandWithSpinner("ollama create hippo-shell -f " + CONTEXT_FILE);
         if(!result.compare("Error running command")){
             return "Error generating agent";

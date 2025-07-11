@@ -10,4 +10,4 @@ std::string trim(std::string& str);
 std::string detectOS();
 std::string getInstalledPackagesCommand(const std::string& distro);
 void runBlock(ContextBlock& block);
-void collectContext(const std::string& outputPath = "/tmp/jeanne_context_rag.txt");
+void collectContext(const std::string& outputPath = "/tmp/jeanne_context_rag.txt", const std::string& contextRoot = "/");

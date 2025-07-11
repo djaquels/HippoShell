@@ -7,6 +7,11 @@ accelerate their bash, system tasks.
 
 ### Installation
 
+EDIT TERMINFO env var with
+<code>
+export TERMINFO=/usr/share/terminfo
+</code>
+
 Clone repository and run the
 <code>
 package.sh

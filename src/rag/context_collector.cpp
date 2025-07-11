@@ -39,17 +39,18 @@ std::string detectOS() {
 
 std::string getInstalledPackagesCommand(const std::string& distro) {
     if (distro == "ubuntu" || distro == "debian") {
-        return "dpkg -l | grep '^ii' | head -n 50";
+        return "dpkg -l | grep '^ii' ";
+        //limit with  head -n 250
     } else if (distro == "fedora" || distro == "redhat") {
-        return "dnf list installed | head -n 50";
+        return "dnf list installed ";
     } else if (distro == "opensuse" || distro == "sles") {
-        return "zypper se --installed-only | head -n 50";
+        return "zypper se --installed-only";
     } else if (distro == "arch") {
-        return "pacman -Q | head -n 50";
+        return "pacman -Q";
     } else if (distro == "freebsd") {
-        return "pkg info | head -n 50";
+        return "pkg info";
     } else {
-        return "echo '❌ Unknown package manager'";
+        return "dpkg -l | grep '^ii' || dnf list installed || zypper se --installed-only || pacman -Q || pkg info || brew list";
     }
 }
 
@@ -58,11 +59,12 @@ void runBlock(ContextBlock& block) {
     block.result = output;
 }
 
-void collectContext(const std::string& outputPath = "/tmp/jeanne_context_rag.txt") {
+void collectContext(const std::string& outputPath = "/tmp/jeanne_context_rag.txt", const std::string& contextRoot = "/") {
     std::string distro = detectOS();
 
     std::vector<ContextBlock> blocks = {
         {"[OS Info]", "uname -a && lsb_release -a || cat /etc/os-release"},
+        {"[Distro Info]", "uname -rs"},
         {"[CPU Info]", "lscpu"},
         {"[RAM Info]", "free -h"},
         {"[Disk Usage]", "df -h"},
@@ -72,7 +74,9 @@ void collectContext(const std::string& outputPath = "/tmp/jeanne_context_rag.txt
         {"[Running Services]", "systemctl list-units --type=service --state=running | head -n 20"},
         {"[Processes]", "ps aux --sort=-%cpu | head -n 10"},
         {"[Network Info]", "hostname -I && ip a | grep inet && ss -tuln"},
-        {"[Directory Tree]", "tree -L 2 ~ 2>/dev/null"}
+        {"[Directory Tree]", "tree "+ contextRoot + " -L 5 ~ 2>/dev/null"},
+        {"[Open ports]", "mount | grep '^/dev' | head -n 10"},
+        {"[Baterry Info]", "lspci | grep VGA"}
     };
 
     std::vector<std::thread> threads;
